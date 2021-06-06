@@ -82,12 +82,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.buttonAdd -> addNumber()
             R.id.buttonReset -> resetNumbers()
-            R.id.buttonExecution -> getRandomNumbers()
+            R.id.buttonExecution -> initExecutionButton()
         }
     }
 
     private fun resetNumbers() {
         pickNumberSet.clear()
+        numberTextViewList.forEach {
+            it.isVisible = false
+        }
+        executed = false
     }
 
     private fun addNumber() {
@@ -96,7 +100,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             return
         }
         if (pickNumberSet.size > 5) {
-            Toast.makeText(this, "You can select up to 5 numbers", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "You can select up to 6 numbers", Toast.LENGTH_SHORT).show()
             return
         }
         if (pickNumberSet.contains(numberPicker.value)) {
@@ -114,16 +118,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun getRandomNumbers(): List<Int> {
         val numberList = mutableListOf<Int>().apply {
             for (i in 1..45) {
+                if (pickNumberSet.contains(i)) {
+                    continue
+                }
                 this.add(i)
             }
         }
 
         numberList.shuffle()
 
-        val resultList = numberList.subList(0, 6)
+        val resultList = pickNumberSet.toList() + numberList.subList(0, 6 - pickNumberSet.size)
+
+        executed = true
 
         return resultList.sorted()
     }
 
+    private fun initExecutionButton() {
+        val list = getRandomNumbers()
+
+        executed = true
+
+        list.forEachIndexed { index, i ->
+            val textView = numberTextViewList[index]
+            textView.text = i.toString()
+            textView.isVisible = true
+        }
+    }
 
 }
